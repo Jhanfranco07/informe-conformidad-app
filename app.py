@@ -34,7 +34,7 @@ if tipo_doc == "Informe de Conformidad":
         numero = st.text_input("Nº de Informe", help="Número correlativo del informe (ej. 001)")
         gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"], help="Seleccione la gerencia responsable del servicio")
         proveedor = st.text_input("Proveedor", help="Nombre del proveedor del servicio")
-        ruc = st.text_input("RUC", help="RUC del proveedor")
+        ruc = st.text_input("RUC", help="RUC del proveedor (11 dígitos)")
         concepto = st.text_input("Concepto", help="Descripción del servicio prestado")
         orden_servicio = st.text_input("Orden de Servicio", help="Número de la orden de servicio")
         fecha_orden = st.date_input("Fecha de la O.S.", help="Fecha en que se emitió la orden")
@@ -63,8 +63,20 @@ if tipo_doc == "Informe de Conformidad":
 
         errores = [campo for campo, valor in campos_obligatorios.items() if valor.strip() == "" or valor == "Seleccione una opción"]
 
+        if not ruc.isdigit() or len(ruc) != 11:
+            errores.append("RUC (debe contener exactamente 11 dígitos numéricos)")
+
+        if not plazo.isdigit():
+            errores.append("Plazo (debe ser un número)")
+
+        if any(char.isdigit() for char in proveedor):
+            errores.append("Proveedor (solo debe contener texto)")
+
+        if any(char.isdigit() for char in concepto):
+            errores.append("Concepto (solo debe contener texto)")
+
         if errores:
-            st.error(f"❌ Por favor completa los siguientes campos obligatorios: {', '.join(errores)}")
+            st.error(f"❌ Por favor corrija los siguientes campos: {', '.join(errores)}")
         else:
             dias = (fecha_termino - fecha_inicio).days + 1
             mes_nombre = meses[fecha.strftime("%B")]
@@ -105,4 +117,5 @@ if tipo_doc == "Informe de Conformidad":
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
+
 
