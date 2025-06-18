@@ -3,16 +3,6 @@ from docxtpl import DocxTemplate
 from datetime import datetime
 import base64
 import os
-import locale
-
-# Establecer locale para fechas en español
-try:
-    locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
-except:
-    try:
-        locale.setlocale(locale.LC_TIME, 'es_ES')
-    except:
-        st.warning("No se pudo establecer el idioma español para fechas. Puede que el mes aparezca en inglés.")
 
 # Cargar plantilla
 TEMPLATE_PATH = "plantilla.docx"
@@ -43,6 +33,16 @@ with st.form("formulario"):
 if submitted:
     dias = (fecha_termino - fecha_inicio).days
 
+    # Traducción manual de meses al español
+    meses = {
+        "January": "enero", "February": "febrero", "March": "marzo",
+        "April": "abril", "May": "mayo", "June": "junio",
+        "July": "julio", "August": "agosto", "September": "septiembre",
+        "October": "octubre", "November": "noviembre", "December": "diciembre"
+    }
+    mes_nombre = meses[fecha.strftime("%B")]
+    fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
+
     doc = DocxTemplate(TEMPLATE_PATH)
     context = {
         "numero": numero,
@@ -58,7 +58,7 @@ if submitted:
         "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
         "dias": dias,
         "referencia": referencia,
-        "fecha": fecha.strftime("%d de %B de %Y")
+        "fecha": fecha_formateada
     }
 
     output_path = f"{nombre_empleado.upper()}_CONFORMIDAD_{numero}.docx"
@@ -73,5 +73,3 @@ if submitted:
         st.markdown(href, unsafe_allow_html=True)
 
     os.remove(output_path)
-
-
