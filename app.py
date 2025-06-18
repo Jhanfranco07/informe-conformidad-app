@@ -32,7 +32,7 @@ if tipo_doc == "Informe de Conformidad":
 
     with st.form("formulario_conformidad"):
         numero = st.text_input("Nº de Informe")
-        gerencia = st.text_input("Gerencia solicitante")
+        gerencia = st.selectbox("Gerencia solicitante", ["", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"])
         proveedor = st.text_input("Proveedor")
         ruc = st.text_input("RUC")
         concepto = st.text_input("Concepto")
