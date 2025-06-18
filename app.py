@@ -42,7 +42,7 @@ if tipo_doc == "Informe de Conformidad":
         fecha_inicio = st.date_input("Inicio del servicio", help="Fecha en que comenzó el servicio")
         fecha_termino = st.date_input("Término del servicio", help="Fecha en que finalizó el servicio")
         fecha_entrega = st.date_input("Fecha de entrega", help="Fecha en que se entregó el servicio")
-        referencia = st.text_input("Referencia del entregable", help="Nombre o número del entregable")
+        referencia = st.selectbox("Referencia del entregable", ["", "1", "2", "3", "4"], help="Seleccione el número del entregable correspondiente")
         fecha = st.date_input("Fecha de emisión", datetime.today(), help="Fecha actual de emisión del informe")
         nombre_empleado = st.text_input("Tu nombre para el archivo generado", help="Tu nombre o identificador para nombrar el archivo")
 
@@ -70,7 +70,7 @@ if tipo_doc == "Informe de Conformidad":
             mes_nombre = meses[fecha.strftime("%B")]
             fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
-            TEMPLATE_PATH = "plantilla_conformidad.docx"
+            TEMPLATE_PATH = "plantilla_informe_conformidad.docx"
             doc = DocxTemplate(TEMPLATE_PATH)
             context = {
                 "numero": numero,
@@ -105,5 +105,6 @@ if tipo_doc == "Informe de Conformidad":
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
+
 
 
