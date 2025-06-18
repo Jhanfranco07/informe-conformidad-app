@@ -66,7 +66,7 @@ if tipo_doc == "Informe de Conformidad":
         if errores:
             st.error(f"❌ Por favor completa los siguientes campos obligatorios: {', '.join(errores)}")
         else:
-            dias = max((fecha_termino - fecha_inicio).days, 1)
+            dias = (fecha_termino - fecha_inicio).days + 1
             mes_nombre = meses[fecha.strftime("%B")]
             fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
