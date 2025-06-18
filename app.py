@@ -4,6 +4,7 @@ from datetime import datetime
 import base64
 import os
 
+# Estilo visual
 st.set_page_config(page_title="Generador de Documentos", page_icon="📝", layout="centered")
 st.markdown("""
     <style>
@@ -16,6 +17,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Traducción manual de meses al español
 meses = {
     "January": "enero", "February": "febrero", "March": "marzo",
     "April": "abril", "May": "mayo", "June": "junio",
@@ -38,12 +40,9 @@ if tipo_doc == "Informe de Conformidad":
 
         col1, col2 = st.columns([3,1])
         with col1:
-            ruc = st.text_input("RUC", help="RUC del proveedor (11 dígitos)")
+            ruc = st.text_input("RUC", help="RUC del proveedor (11 dígitos)", max_chars=11)
         with col2:
             st.markdown("<small><i>Máximo 11 dígitos</i></small>", unsafe_allow_html=True)
-
-        if len(ruc) > 11:
-            ruc = ruc[:11]
 
         concepto = st.text_input("Concepto", help="Descripción del servicio prestado")
         orden_servicio = st.text_input("Orden de Servicio", help="Número de la orden de servicio")
