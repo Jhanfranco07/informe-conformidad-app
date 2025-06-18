@@ -5,7 +5,7 @@ import base64
 import os
 
 # Cargar plantilla
-TEMPLATE_PATH = "plantilla.docx"
+TEMPLATE_PATH = "plantilla_conformidad.docx"
 
 # Título
 st.title("Generador de Informes de Conformidad")
