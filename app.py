@@ -53,7 +53,7 @@ if tipo_doc == "Informe de Conformidad":
         mes_nombre = meses[fecha.strftime("%B")]
         fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
-        TEMPLATE_PATH = "plantilla_informe_conformidad.docx"
+        TEMPLATE_PATH = "plantilla_conformidad.docx"
         doc = DocxTemplate(TEMPLATE_PATH)
         context = {
             "numero": numero,
