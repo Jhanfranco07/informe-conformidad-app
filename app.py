@@ -5,7 +5,7 @@ import base64
 import os
 
 # Estilo visual
-st.set_page_config(page_title="Generador de Documentos", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Generador asasade Documentos", page_icon="📝", layout="centered")
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
