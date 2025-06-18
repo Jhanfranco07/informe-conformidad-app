@@ -5,7 +5,7 @@ import base64
 import os
 
 # Estilo visual
-st.set_page_config(page_title="Generador asasade Documentos", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Generador de Documentos", page_icon="📝", layout="centered")
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -31,20 +31,20 @@ if tipo_doc == "Informe de Conformidad":
     st.markdown("Llena el formulario para generar el informe en formato Word.")
 
     with st.form("formulario_conformidad"):
-        numero = st.text_input("Nº de Informe")
-        gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"])
-        proveedor = st.text_input("Proveedor")
-        ruc = st.text_input("RUC")
-        concepto = st.text_input("Concepto")
-        orden_servicio = st.text_input("Orden de Servicio")
-        fecha_orden = st.date_input("Fecha de la O.S.")
-        plazo = st.text_input("Plazo del servicio")
-        fecha_inicio = st.date_input("Inicio del servicio")
-        fecha_termino = st.date_input("Término del servicio")
-        fecha_entrega = st.date_input("Fecha de entrega")
-        referencia = st.text_input("Referencia del entregable")
-        fecha = st.date_input("Fecha de emisión", datetime.today())
-        nombre_empleado = st.text_input("Tu nombre para el archivo generado")
+        numero = st.text_input("Nº de Informe", help="Número correlativo del informe (ej. 001)")
+        gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"], help="Seleccione la gerencia responsable del servicio")
+        proveedor = st.text_input("Proveedor", help="Nombre del proveedor del servicio")
+        ruc = st.text_input("RUC", help="RUC del proveedor")
+        concepto = st.text_input("Concepto", help="Descripción del servicio prestado")
+        orden_servicio = st.text_input("Orden de Servicio", help="Número de la orden de servicio")
+        fecha_orden = st.date_input("Fecha de la O.S.", help="Fecha en que se emitió la orden")
+        plazo = st.text_input("Plazo del servicio", help="Duración acordada del servicio, en días")
+        fecha_inicio = st.date_input("Inicio del servicio", help="Fecha en que comenzó el servicio")
+        fecha_termino = st.date_input("Término del servicio", help="Fecha en que finalizó el servicio")
+        fecha_entrega = st.date_input("Fecha de entrega", help="Fecha en que se entregó el servicio")
+        referencia = st.text_input("Referencia del entregable", help="Nombre o número del entregable")
+        fecha = st.date_input("Fecha de emisión", datetime.today(), help="Fecha actual de emisión del informe")
+        nombre_empleado = st.text_input("Tu nombre para el archivo generado", help="Tu nombre o identificador para nombrar el archivo")
 
         submitted = st.form_submit_button("Generar Informe")
 
@@ -105,4 +105,5 @@ if tipo_doc == "Informe de Conformidad":
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
+
 
