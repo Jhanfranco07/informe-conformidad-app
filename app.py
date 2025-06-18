@@ -70,7 +70,7 @@ if tipo_doc == "Informe de Conformidad":
             mes_nombre = meses[fecha.strftime("%B")]
             fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
-            TEMPLATE_PATH = "plantilla_conformidad.docx"
+            TEMPLATE_PATH = "Plantilla_conformidad_nuevo.docx"
             doc = DocxTemplate(TEMPLATE_PATH)
             context = {
                 "numero": numero,
@@ -81,8 +81,8 @@ if tipo_doc == "Informe de Conformidad":
                 "orden_servicio": orden_servicio,
                 "fecha_orden": fecha_orden.strftime("%d/%m/%Y"),
                 "plazo": plazo,
-                "fecha_inicio": fecha_inicio.strftime("%d/%m/%Y"),
-                "fecha_termino": fecha_termino.strftime("%d/%m/%Y"),
+                "f_inicio": fecha_inicio.strftime("%d/%m/%Y"),
+                "f_termino": fecha_termino.strftime("%d/%m/%Y"),
                 "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
                 "dias": dias,
                 "referencia": referencia,
@@ -105,6 +105,4 @@ if tipo_doc == "Informe de Conformidad":
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
-
-
 
