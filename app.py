@@ -49,42 +49,47 @@ if tipo_doc == "Informe de Conformidad":
         submitted = st.form_submit_button("Generar Informe")
 
     if submitted:
-        dias = (fecha_termino - fecha_inicio).days
-        mes_nombre = meses[fecha.strftime("%B")]
-        fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
+        campos_obligatorios = [numero, gerencia, proveedor, ruc, concepto, orden_servicio, plazo, referencia, nombre_empleado]
+        if any(c.strip() == "" for c in campos_obligatorios):
+            st.warning("⚠️ Por favor completa todos los campos obligatorios antes de generar el informe.")
+        else:
+            dias = max((fecha_termino - fecha_inicio).days, 1)
+            mes_nombre = meses[fecha.strftime("%B")]
+            fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
-        TEMPLATE_PATH = "plantilla_conformidad.docx"
-        doc = DocxTemplate(TEMPLATE_PATH)
-        context = {
-            "numero": numero,
-            "gerencia": gerencia,
-            "proveedor": proveedor,
-            "ruc": ruc,
-            "concepto": concepto,
-            "orden_servicio": orden_servicio,
-            "fecha_orden": fecha_orden.strftime("%d/%m/%Y"),
-            "plazo": plazo,
-            "fecha_inicio": fecha_inicio.strftime("%d/%m/%Y"),
-            "fecha_termino": fecha_termino.strftime("%d/%m/%Y"),
-            "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
-            "dias": dias,
-            "referencia": referencia,
-            "fecha": fecha_formateada
-        }
+            TEMPLATE_PATH = "plantilla_conformidad.docx"
+            doc = DocxTemplate(TEMPLATE_PATH)
+            context = {
+                "numero": numero,
+                "gerencia": gerencia,
+                "proveedor": proveedor,
+                "ruc": ruc,
+                "concepto": concepto,
+                "orden_servicio": orden_servicio,
+                "fecha_orden": fecha_orden.strftime("%d/%m/%Y"),
+                "plazo": plazo,
+                "fecha_inicio": fecha_inicio.strftime("%d/%m/%Y"),
+                "fecha_termino": fecha_termino.strftime("%d/%m/%Y"),
+                "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
+                "dias": dias,
+                "referencia": referencia,
+                "fecha": fecha_formateada
+            }
 
-        output_path = f"{nombre_empleado.upper()}_CONFORMIDAD_{numero}.docx"
-        doc.render(context)
-        doc.save(output_path)
+            output_path = f"{nombre_empleado.upper()}_CONFORMIDAD_{numero}.docx"
+            doc.render(context)
+            doc.save(output_path)
 
-        with open(output_path, "rb") as f:
-            data = f.read()
-            b64 = base64.b64encode(data).decode()
-            href = f'<a href="data:application/octet-stream;base64,{b64}" download="{output_path}">📥 Descargar Informe</a>'
-            st.success("Informe generado exitosamente.")
-            st.markdown(href, unsafe_allow_html=True)
+            with open(output_path, "rb") as f:
+                data = f.read()
+                b64 = base64.b64encode(data).decode()
+                href = f'<a href="data:application/octet-stream;base64,{b64}" download="{output_path}">📥 Descargar Informe</a>'
+                st.success("Informe generado exitosamente.")
+                st.markdown(href, unsafe_allow_html=True)
 
-        os.remove(output_path)
+            os.remove(output_path)
 
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
+
