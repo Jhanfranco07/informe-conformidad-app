@@ -4,17 +4,18 @@ from datetime import datetime
 import base64
 import os
 
-# Estilo visual
 st.set_page_config(page_title="Generador de Documentos", page_icon="📝", layout="centered")
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
     .block-container { padding-top: 2rem; }
     .stButton>button { background-color: #0d6efd; color: white; border-radius: 5px; }
+    input[maxlength] {
+        ime-mode: disabled;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Traducción manual de meses al español
 meses = {
     "January": "enero", "February": "febrero", "March": "marzo",
     "April": "abril", "May": "mayo", "June": "junio",
@@ -34,7 +35,16 @@ if tipo_doc == "Informe de Conformidad":
         numero = st.text_input("Nº de Informe", help="Número correlativo del informe (ej. 001)")
         gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"], help="Seleccione la gerencia responsable del servicio")
         proveedor = st.text_input("Proveedor", help="Nombre del proveedor del servicio")
-        ruc = st.text_input("RUC", help="RUC del proveedor (11 dígitos)")
+
+        col1, col2 = st.columns([3,1])
+        with col1:
+            ruc = st.text_input("RUC", help="RUC del proveedor (11 dígitos)")
+        with col2:
+            st.markdown("<small><i>Máximo 11 dígitos</i></small>", unsafe_allow_html=True)
+
+        if len(ruc) > 11:
+            ruc = ruc[:11]
+
         concepto = st.text_input("Concepto", help="Descripción del servicio prestado")
         orden_servicio = st.text_input("Orden de Servicio", help="Número de la orden de servicio")
         fecha_orden = st.date_input("Fecha de la O.S.", help="Fecha en que se emitió la orden")
@@ -117,5 +127,3 @@ if tipo_doc == "Informe de Conformidad":
 elif tipo_doc == "Informe de Actividades":
     st.header("📑 Informe de Actividades")
     st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
-
-
