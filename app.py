@@ -32,7 +32,7 @@ if tipo_doc == "Informe de Conformidad":
 
     with st.form("formulario_conformidad"):
         numero = st.text_input("Nº de Informe")
-        gerencia = st.selectbox("Gerencia solicitante", ["", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"])
+        gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"])
         proveedor = st.text_input("Proveedor")
         ruc = st.text_input("RUC")
         concepto = st.text_input("Concepto")
@@ -49,9 +49,22 @@ if tipo_doc == "Informe de Conformidad":
         submitted = st.form_submit_button("Generar Informe")
 
     if submitted:
-        campos_obligatorios = [numero, gerencia, proveedor, ruc, concepto, orden_servicio, plazo, referencia, nombre_empleado]
-        if any(c.strip() == "" for c in campos_obligatorios):
-            st.warning("⚠️ Por favor completa todos los campos obligatorios antes de generar el informe.")
+        campos_obligatorios = {
+            "Nº de Informe": numero,
+            "Gerencia": gerencia,
+            "Proveedor": proveedor,
+            "RUC": ruc,
+            "Concepto": concepto,
+            "Orden de Servicio": orden_servicio,
+            "Plazo": plazo,
+            "Referencia": referencia,
+            "Nombre para el archivo": nombre_empleado
+        }
+
+        errores = [campo for campo, valor in campos_obligatorios.items() if valor.strip() == "" or valor == "Seleccione una opción"]
+
+        if errores:
+            st.error(f"❌ Por favor completa los siguientes campos obligatorios: {', '.join(errores)}")
         else:
             dias = max((fecha_termino - fecha_inicio).days, 1)
             mes_nombre = meses[fecha.strftime("%B")]
