@@ -6,15 +6,12 @@ import base64
 import os
 
 # Configuración visual
-st.set_page_config(page_title="Generador de Documentos", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Informe Unificado", page_icon="📄", layout="centered")
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
     .block-container { padding-top: 2rem; }
     .stButton>button { background-color: #0d6efd; color: white; border-radius: 5px; }
-    input[maxlength] {
-        ime-mode: disabled;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -56,101 +53,112 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# App principal
-st.title("📝 Generador de Documentos Institucionales")
-tipo_doc = st.selectbox("Selecciona el tipo de documento que deseas generar:", ["Informe de Conformidad", "Informe de Actividades"])
+# Título
+st.title("📄 Generador de Informe Único de Conformidad + Actividades")
 
-if tipo_doc == "Informe de Conformidad":
-    st.header("📄 Informe de Conformidad")
+# FORMULARIO
+numero = st.text_input("Nº de Informe de Conformidad", help="Número correlativo (ej. 1)")
+numero_sustento = st.text_input("Nº de Informe de Actividades", help="Número correlativo de sustento")
+gerencia = st.selectbox("Gerencia solicitante", [
+    "Seleccione una opción",
+    "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO",
+    "GERENCIA DE DESARROLLO URBANO"
+])
 
-    numero = st.text_input("Nº de Informe", help="Número correlativo del informe (ej. 1)")
-    gerencia = st.selectbox("Gerencia solicitante", ["Seleccione una opción", "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO", "GERENCIA DE DESARROLLO URBANO"])
+nombre_proveedor = st.selectbox("Selecciona el proveedor", ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist())
+ruc = concepto = nombre_abrev = dni = ""
 
-    # ✅ Proveedor con opción inicial vacía
-    nombre_opciones = ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist()
-    nombre_proveedor = st.selectbox("Selecciona el proveedor", nombre_opciones)
+if nombre_proveedor != "Selecciona un proveedor":
+    proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
+    ruc = proveedor_info["RUC"]
+    concepto = proveedor_info["SERVICIO"]
 
-    if nombre_proveedor != "Selecciona un proveedor":
-        proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-        ruc = proveedor_info["RUC"]
-        concepto = proveedor_info["SERVICIO"]
-        st.text_input("RUC", value=ruc, disabled=True)
-        st.text_area("Concepto", value=concepto, disabled=True, height=80)
+    st.text_input("RUC", value=ruc, disabled=True)
+    st.text_area("Concepto", value=concepto, disabled=True, height=80)
+
+    partes = nombre_proveedor.strip().split()
+    nombre_abrev = "".join([p[0] for p in partes[:4]]).upper()
+
+    st.text_input("Nombre abreviado del proveedor", value=nombre_abrev, disabled=True)
+
+    if ruc.isdigit() and len(ruc) == 11 and ruc.startswith("10"):
+        dni = ruc[2:-1]
+
+orden_servicio = st.text_input("Orden de Servicio")
+fecha_orden = st.date_input("Fecha de la Orden de Servicio")
+plazo = st.text_input("Plazo del servicio (días)")
+fecha_inicio = st.date_input("Inicio del servicio")
+fecha_termino = st.date_input("Término del servicio")
+fecha_entrega = st.date_input("Fecha de entrega del servicio")
+referencia = st.selectbox("Referencia del entregable", ["", "1", "2", "3", "4"])
+fecha = st.date_input("Fecha de emisión del informe", datetime.today())
+actividades = st.text_area("Detalle de las actividades realizadas", height=200)
+nombre_empleado = st.text_input("Tu nombre para el archivo generado")
+
+if st.button("📝 Generar Informe Unificado"):
+    campos_obligatorios = {
+        "Nº Informe": numero,
+        "Nº Sustento": numero_sustento,
+        "Gerencia": gerencia,
+        "Proveedor": nombre_proveedor,
+        "RUC": ruc,
+        "Concepto": concepto,
+        "Orden de Servicio": orden_servicio,
+        "Plazo": plazo,
+        "Referencia": referencia,
+        "Actividades": actividades,
+        "Nombre archivo": nombre_empleado
+    }
+
+    errores = [campo for campo, valor in campos_obligatorios.items()
+               if valor.strip() == "" or valor in ["Seleccione una opción", "Selecciona un proveedor"]]
+
+    if not ruc.isdigit() or len(ruc) != 11:
+        errores.append("RUC (debe tener 11 dígitos)")
+    if not plazo.isdigit():
+        errores.append("Plazo (solo números)")
+
+    if errores:
+        st.error("❌ Corrige los siguientes campos: " + ", ".join(errores))
     else:
-        ruc = ""
-        concepto = ""
-        st.warning("Por favor, selecciona un proveedor para mostrar los datos.")
+        dias = (fecha_termino - fecha_inicio).days + 1
+        mes_nombre = meses[fecha.strftime("%B")]
+        fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
 
-    orden_servicio = st.text_input("Orden de Servicio")
-    fecha_orden = st.date_input("Fecha de la O.S.")
-    plazo = st.text_input("Plazo del servicio")
-    fecha_inicio = st.date_input("Inicio del servicio")
-    fecha_termino = st.date_input("Término del servicio")
-    fecha_entrega = st.date_input("Fecha de entrega")
-    referencia = st.selectbox("Referencia del entregable", ["", "1", "2", "3", "4"])
-    fecha = st.date_input("Fecha de emisión", datetime.today())
-    nombre_empleado = st.text_input("Tu nombre para el archivo generado")
-
-    if st.button("Generar Informe"):
-        campos_obligatorios = {
-            "Nº de Informe": numero,
-            "Gerencia": gerencia,
-            "Proveedor": nombre_proveedor,
-            "RUC": ruc,
-            "Concepto": concepto,
-            "Orden de Servicio": orden_servicio,
-            "Plazo": plazo,
-            "Referencia": referencia,
-            "Nombre para el archivo": nombre_empleado
+        context = {
+            "numero": numero,
+            "numero_sustento": numero_sustento,
+            "gerencia": gerencia,
+            "proveedor": nombre_proveedor,
+            "ruc": ruc,
+            "concepto": concepto,
+            "orden_servicio": orden_servicio,
+            "fecha_orden": fecha_orden.strftime("%d/%m/%Y"),
+            "plazo": plazo,
+            "f_inicio": fecha_inicio.strftime("%d/%m/%Y"),
+            "f_termino": fecha_termino.strftime("%d/%m/%Y"),
+            "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
+            "dias": dias,
+            "referencia": referencia,
+            "fecha": fecha_formateada,
+            "nombre_abrev": nombre_abrev,
+            "dni": dni,
+            "actividades": actividades
         }
 
-        errores = [campo for campo, valor in campos_obligatorios.items() if valor.strip() == "" or valor == "Seleccione una opción" or valor == "Selecciona un proveedor"]
+        # Renderiza solo UNA plantilla
+        plantilla = "Plantilla_unificada.docx"
+        doc = DocxTemplate(plantilla)
+        doc.render(context)
 
-        if not ruc.isdigit() or len(ruc) != 11:
-            errores.append("RUC (debe contener exactamente 11 dígitos)")
-        if not plazo.isdigit():
-            errores.append("Plazo (debe ser numérico)")
+        nombre_archivo = f"{nombre_empleado.upper()}_INFORME_CONFORMIDAD_{numero}.docx"
+        doc.save(nombre_archivo)
 
-        if errores:
-            st.error("❌ Corrige los siguientes campos: " + ", ".join(errores))
-        else:
-            dias = (fecha_termino - fecha_inicio).days + 1
-            mes_nombre = meses[fecha.strftime("%B")]
-            fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
+        with open(nombre_archivo, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+            href = f'<a href="data:application/octet-stream;base64,{b64}" download="{nombre_archivo}">📥 Descargar Informe de Conformidades y Sustento</a>'
+            st.markdown(href, unsafe_allow_html=True)
 
-            TEMPLATE_PATH = "Plantilla_conformidad_nuevo.docx"
-            doc = DocxTemplate(TEMPLATE_PATH)
-            context = {
-                "numero": numero,
-                "gerencia": gerencia,
-                "proveedor": nombre_proveedor,
-                "ruc": ruc,
-                "concepto": concepto,
-                "orden_servicio": orden_servicio,
-                "fecha_orden": fecha_orden.strftime("%d/%m/%Y"),
-                "plazo": plazo,
-                "f_inicio": fecha_inicio.strftime("%d/%m/%Y"),
-                "f_termino": fecha_termino.strftime("%d/%m/%Y"),
-                "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
-                "dias": dias,
-                "referencia": referencia,
-                "fecha": fecha_formateada
-            }
-
-            output_path = f"{nombre_empleado.upper()}_CONFORMIDAD_{numero}.docx"
-            doc.render(context)
-            doc.save(output_path)
-
-            with open(output_path, "rb") as f:
-                data = f.read()
-                b64 = base64.b64encode(data).decode()
-                href = f'<a href="data:application/octet-stream;base64,{b64}" download="{output_path}">📥 Descargar Informe</a>'
-                st.success("Informe generado exitosamente.")
-                st.markdown(href, unsafe_allow_html=True)
-
-            os.remove(output_path)
-
-elif tipo_doc == "Informe de Actividades":
-    st.header("📑 Informe de Actividades")
-    st.info("Esta sección está en desarrollo. Muy pronto podrás generar informes automáticos de actividades.")
+        os.remove(nombre_archivo)
+        st.success("✅ Informe unificado generado correctamente.")
 
