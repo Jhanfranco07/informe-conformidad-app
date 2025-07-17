@@ -23,10 +23,18 @@ meses = {
     "October": "octubre", "November": "noviembre", "December": "diciembre"
 }
 
+# Referencias en letra para sustento
+referencias_letras = {
+    "1": "primer",
+    "2": "segundo",
+    "3": "tercer",
+    "4": "cuarto"
+}
+
 # Datos estáticos
 data = {
     "RUC": [
-        "10754913253", "10607555589", "10445407297", "1010665091", "10093876160",
+        "10754913253", "10607555589", "10445407297", "10106656091", "10093876160",
         "10735782741", "10727949629", "10755833504", "10752815181", "10727584418",
         "10721544767", "10474310464"
     ],
@@ -95,6 +103,7 @@ fecha = st.date_input("Fecha de emisión del informe", datetime.today())
 actividades = st.text_area("Detalle de las actividades realizadas", height=200)
 nombre_empleado = st.text_input("Tu nombre para el archivo generado")
 
+# Botón
 if st.button("📝 Generar Informe Unificado"):
     campos_obligatorios = {
         "Nº Informe": numero,
@@ -124,6 +133,7 @@ if st.button("📝 Generar Informe Unificado"):
         dias = (fecha_termino - fecha_inicio).days + 1
         mes_nombre = meses[fecha.strftime("%B")]
         fecha_formateada = f"{fecha.day} de {mes_nombre} de {fecha.year}"
+        referencia_2 = referencias_letras.get(referencia, "")
 
         context = {
             "numero": numero,
@@ -140,13 +150,13 @@ if st.button("📝 Generar Informe Unificado"):
             "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
             "dias": dias,
             "referencia": referencia,
+            "referencia_2": referencia_2,
             "fecha": fecha_formateada,
             "nombre_abrev": nombre_abrev,
             "dni": dni,
             "actividades": actividades
         }
 
-        # Renderiza solo UNA plantilla
         plantilla = "Plantilla_unificada.docx"
         doc = DocxTemplate(plantilla)
         doc.render(context)
@@ -161,4 +171,5 @@ if st.button("📝 Generar Informe Unificado"):
 
         os.remove(nombre_archivo)
         st.success("✅ Informe unificado generado correctamente.")
+
 
