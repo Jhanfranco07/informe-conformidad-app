@@ -7,11 +7,14 @@ import os
 
 def mostrar():
     st.set_page_config(page_title="Informe Unificado", page_icon="\U0001F4C4", layout="centered")
+
     st.markdown("""
         <style>
         .main { background-color: #f8f9fa; }
         .block-container { padding-top: 2rem; }
         .stButton>button { background-color: #0d6efd; color: white; border-radius: 5px; }
+        .stTextInput>div>div>input, .stTextArea>div>textarea, .stSelectbox>div>div>div>div { border-radius: 6px; }
+        .stExpander { border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -23,63 +26,59 @@ def mostrar():
     }
 
     referencias_letras = {"1": "primer", "2": "segundo", "3": "tercer", "4": "cuarto"}
-
     df = pd.read_excel("datos/proveedores.xlsx")
 
     st.title("\U0001F4C4 Informe Único de Conformidad y Actividades")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        numero = st.text_input("📄 Nº de Informe de Conformidad")
-        numero_sustento = st.text_input("📎 Nº de Informe de Actividades")
-        gerencia = st.selectbox("🏢 Gerencia solicitante", [
-            "Seleccione una opción",
-            "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO",
-            "GERENCIA DE DESARROLLO URBANO"
-        ])
-    with col2:
-        orden_servicio = st.text_input("📝 Orden de Servicio")
-        plazo = st.text_input("⏳ Plazo del servicio (días)")
-        referencia = st.selectbox("📌 Referencia del entregable", ["", "1", "2", "3", "4"])
+    with st.expander("🔹 Información general del servicio", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            numero = st.text_input("📄 Nº de Informe de Conformidad")
+            numero_sustento = st.text_input("📌 Nº de Informe de Actividades")
+            gerencia = st.selectbox("🏢 Gerencia solicitante", [
+                "Seleccione una opción",
+                "GERENCIA DE LICENCIAS Y DESARROLLO ECONÓMICO",
+                "GERENCIA DE DESARROLLO URBANO"
+            ])
+        with col2:
+            orden_servicio = st.text_input("📝 Orden de Servicio")
+            plazo = st.text_input("⏳ Plazo del servicio (días)")
+            referencia = st.selectbox("📌 Referencia del entregable", ["", "1", "2", "3", "4"])
 
-    st.markdown("---")
-
-    with st.expander("📁 Datos del Proveedor", expanded=True):
+    with st.expander("📋 Datos del Proveedor", expanded=True):
         nombre_proveedor = st.selectbox("👤 Selecciona el proveedor", ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist())
         ruc = concepto = nombre_abrev = dni = actividades = ""
 
         if nombre_proveedor != "Selecciona un proveedor":
             proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-            ruc = str(proveedor_info["N° RUC"])
+            ruc = str(proveedor_info["Nº RUC"])
             concepto = proveedor_info["SERVICIO"]
             actividades = proveedor_info.get("ACTIVIDADES REALIZADAS", "")
-            dni = str(proveedor_info["N° DNI"])
+            dni = str(proveedor_info["Nº DNI"])
 
-            st.text_input("🔢 RUC", value=ruc, disabled=True)
-            st.text_area("🧾 Concepto", value=concepto, disabled=True)
+            st.text_input("🔹 RUC", value=ruc, disabled=True)
+            st.text_area("📃 Concepto", value=concepto, disabled=True)
             st.text_area("🛠️ Detalle de las actividades realizadas", value=actividades, disabled=True)
 
             partes = nombre_proveedor.strip().split()
             nombre_abrev = "".join([p[0] for p in partes[:4]]).upper()
             st.text_input("🔠 Nombre abreviado del proveedor", value=nombre_abrev, disabled=True)
 
-    st.markdown("---")
-
-    with st.expander("📅 Fechas del Servicio", expanded=True):
+    with st.expander("🗓️ Fechas del Servicio", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            fecha_orden = st.date_input("📆 Fecha de la Orden de Servicio")
-            fecha_inicio = st.date_input("📆 Inicio del servicio")
-            fecha_entrega = st.date_input("📆 Fecha de entrega del servicio")
+            fecha_orden = st.date_input("🗓️ Fecha de la Orden de Servicio")
+            fecha_inicio = st.date_input("🗓️ Inicio del servicio")
+            fecha_entrega = st.date_input("🗓️ Fecha de entrega del servicio")
         with col2:
-            fecha_termino = st.date_input("📆 Término del servicio")
+            fecha_termino = st.date_input("🗓️ Término del servicio")
             fecha = st.date_input("📅 Fecha de emisión del informe", datetime.today())
 
-    st.markdown("---")
+    st.text_input("✍️ Tu nombre para el archivo generado", key="nombre_empleado")
 
-    nombre_empleado = st.text_input("✍️ Tu nombre para el archivo generado")
+    if st.button("\U0001F4DD Generar Informe Unificado"):
+        nombre_empleado = st.session_state.nombre_empleado.strip()
 
-    if st.button("\U0001F4DD Generar Informe de Conformidades"):
         campos_obligatorios = {
             "Nº Informe": numero,
             "Nº Sustento": numero_sustento,
