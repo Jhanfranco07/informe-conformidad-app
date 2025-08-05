@@ -26,7 +26,7 @@ def mostrar():
 
     df = pd.read_excel("datos/proveedores.xlsx")
 
-    st.title("\U0001F4C4 Generador de Informe Único de Conformidad + Actividades")
+    st.title("\U0001F4C4 Generador de Informe Único de Conformidad y Actividades")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -146,3 +146,4 @@ def mostrar():
 
             os.remove(nombre_archivo)
             st.success("✅ Informe unificado generado correctamente.")
+
