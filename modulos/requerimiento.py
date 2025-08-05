@@ -7,13 +7,20 @@ import os
 
 def mostrar():
     st.set_page_config(page_title="Requerimiento de Servicios", page_icon="📝", layout="centered")
+    st.markdown("""
+        <style>
+        .main { background-color: #f8f9fa; }
+        .block-container { padding-top: 2rem; }
+        .stButton>button { background-color: #0d6efd; color: white; border-radius: 5px; }
+        .stTextInput>div>div>input, .stTextArea>div>textarea, .stSelectbox>div>div>div>div { border-radius: 6px; }
+        .stExpander { border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; }
+        </style>
+    """, unsafe_allow_html=True)
 
-    st.title("📑 Generador de Documentos de Requerimiento de Servicios")
+    st.title("\U0001F4C4 Requerimiento de Servicios")
 
-    # Cargar datos
     df = pd.read_excel("datos/proveedores.xlsx")
 
-    # Mes en español
     meses = {
         "January": "enero", "February": "febrero", "March": "marzo",
         "April": "abril", "May": "mayo", "June": "junio",
@@ -21,44 +28,52 @@ def mostrar():
         "October": "octubre", "November": "noviembre", "December": "diciembre"
     }
 
-    # Selección de proveedor
-    with st.expander("👤 Datos del Proveedor", expanded=True):
-        nombre_proveedor = st.selectbox("Selecciona un proveedor", ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist())
-        dni = ruc = direccion = celular = servicio = ""
-        
-        if nombre_proveedor != "Selecciona un proveedor":
-            proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-            dni = str(proveedor_info["N° DNI"])
-            ruc = str(proveedor_info["N° RUC"])
-            direccion = proveedor_info["DIRECCION"]
-            servicio = proveedor_info["SERVICIO"]
-            celular = str(proveedor_info.get("CELULAR", ""))
+    # Datos del proveedor
+    with st.container():
+        with st.expander("💼 Datos del Proveedor", expanded=True):
+            with st.container():
+                nombre_proveedor = st.selectbox("🔍 Selecciona un proveedor", ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist())
 
-            st.text_input("🔢 DNI", value=dni, disabled=True)
-            st.text_input("🏢 RUC", value=ruc, disabled=True)
-            st.text_area("📍 Dirección", value=direccion, disabled=True)
-            st.text_area("🛠️ Servicio", value=servicio, disabled=True)
-            st.text_input("📱 Celular", value=celular, disabled=True)
+                dni = ruc = servicio = direccion = celular = banco = cci = ""
+                if nombre_proveedor != "Selecciona un proveedor":
+                    proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
+                    dni = str(proveedor_info["N° DNI"])
+                    ruc = str(proveedor_info["N° RUC"])
+                    servicio = proveedor_info["SERVICIO"]
+                    direccion = proveedor_info.get("DIRECCION", "")
+                    celular = str(proveedor_info.get("CELULAR", ""))
+                    banco = proveedor_info.get("BANCO", "")
+                    cci = str(proveedor_info.get("CCI", "")).zfill(20)
 
-    with st.expander("📝 Información adicional a completar"):
-        n_servicio = st.text_input("📌 Nº de requerimiento del servicio")
-        dias = st.text_input("⏳ Plazo del servicio (días)", max_chars=2)
-        oferta = st.text_input("💰 Monto total ofertado (S/)", placeholder="Ej. 1500.00")
-        mes_manual = st.selectbox("📆 Mes del documento", list(meses.values()))
+                    st.text_input("🔹 DNI", value=dni, disabled=True)
+                    st.text_input("🏢 RUC", value=ruc, disabled=True)
+                    st.text_area("🛠️ Servicio", value=servicio, disabled=True)
 
-    nombre_empleado = st.text_input("✍️ Tu nombre para el archivo generado")
+    # Información adicional
+    with st.container():
+        with st.expander("📍 Información adicional a completar", expanded=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                n_servicio = st.text_input("📌 Nº de requerimiento del servicio")
+                dias = st.text_input("⏳ Plazo del servicio (días)")
+            with col2:
+                oferta = st.text_input("💰 Monto total ofertado (S/)", placeholder="Ej. 1500.00")
+                mes_manual = st.selectbox("📅 Mes del documento", list(meses.values()))
 
+    # Nombre del archivo
+    with st.container():
+        nombre_empleado = st.text_input("📄 Tu nombre para el archivo generado")
+
+    # Botón de generación
     if st.button("📄 Generar Documento de Requerimiento"):
         campos = {
             "Proveedor": nombre_proveedor,
             "DNI": dni,
             "RUC": ruc,
-            "Dirección": direccion,
-            "Celular": celular,
             "Servicio": servicio,
             "Días": dias,
             "Oferta": oferta,
-            "N° Servicio": n_servicio,
+            "Nº Servicio": n_servicio,
             "Mes": mes_manual,
             "Nombre": nombre_empleado
         }
@@ -77,7 +92,10 @@ def mostrar():
                 "dias": dias,
                 "oferta": oferta,
                 "n_servicio": n_servicio,
-                "mes": mes_manual
+                "mes": mes_manual,
+                "banco": banco,
+                "cci": cci,
+                **{f'd{i+1}': digito for i, digito in enumerate(cci)}
             }
 
             plantilla = "plantilla/requerimientos_unificada.docx"
