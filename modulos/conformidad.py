@@ -26,7 +26,7 @@ def mostrar():
 
     df = pd.read_excel("datos/proveedores.xlsx")
 
-    st.title("\U0001F4C4 Generador de Informe Único de Conformidad y Actividades")
+    st.title("\U0001F4C4 Informe Único de Conformidad y Actividades")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -79,7 +79,7 @@ def mostrar():
 
     nombre_empleado = st.text_input("✍️ Tu nombre para el archivo generado")
 
-    if st.button("\U0001F4DD Generar Informe Unificado"):
+    if st.button("\U0001F4DD Generar Informe de Conformidades"):
         campos_obligatorios = {
             "Nº Informe": numero,
             "Nº Sustento": numero_sustento,
