@@ -51,10 +51,10 @@ def mostrar():
 
         if nombre_proveedor != "Selecciona un proveedor":
             proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-            ruc = str(proveedor_info["Nº RUC"])
+            ruc = str(proveedor_info["N° RUC"])
             concepto = proveedor_info["SERVICIO"]
             actividades = proveedor_info.get("ACTIVIDADES REALIZADAS", "")
-            dni = str(proveedor_info["Nº DNI"])
+            dni = str(proveedor_info["N° DNI"])
 
             st.text_input("🔹 RUC", value=ruc, disabled=True)
             st.text_area("📃 Concepto", value=concepto, disabled=True)
@@ -145,4 +145,5 @@ def mostrar():
 
             os.remove(nombre_archivo)
             st.success("✅ Informe unificado generado correctamente.")
+
 
