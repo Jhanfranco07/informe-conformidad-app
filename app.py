@@ -7,7 +7,7 @@ st.title("📑 Generador de Documentos")
 st.markdown("---")
 
 opcion = st.sidebar.radio("Selecciona un módulo:", [
-    "Informe de Conformidad y Requerimiento",
+    "Informe Unificado de Conformidad",
     "Documento de Requerimiento"
 ])
 
@@ -15,6 +15,7 @@ if opcion == "Informe Unificado de Conformidad":
     conformidad.mostrar()
 elif opcion == "Documento de Requerimiento":
     requerimiento.mostrar()
+
 
 
 
