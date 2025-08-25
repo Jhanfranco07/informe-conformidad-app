@@ -69,7 +69,6 @@ def mostrar():
         with col1:
             fecha_orden = st.date_input("🗓️ Fecha de la Orden de Servicio")
             fecha_inicio = st.date_input("🗓️ Inicio del servicio")
-            fecha_entrega = st.date_input("🗓️ Fecha de entrega del servicio")
         with col2:
             fecha_termino = st.date_input("🗓️ Término del servicio")
             fecha = st.date_input("📅 Fecha de emisión del informe", datetime.today())
@@ -121,7 +120,6 @@ def mostrar():
                 "plazo": plazo,
                 "f_inicio": fecha_inicio.strftime("%d/%m/%Y"),
                 "f_termino": fecha_termino.strftime("%d/%m/%Y"),
-                "fecha_entrega": fecha_entrega.strftime("%d/%m/%Y"),
                 "dias": dias,
                 "referencia": referencia,
                 "referencia_2": referencia_2,
@@ -145,5 +143,6 @@ def mostrar():
 
             os.remove(nombre_archivo)
             st.success("✅ Informe unificado generado correctamente.")
+
 
 
