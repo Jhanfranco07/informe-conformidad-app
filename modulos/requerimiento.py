@@ -29,25 +29,38 @@ def mostrar():
     }
 
     # Datos del proveedor
+# Dentro del expander "💼 Datos del Proveedor"
     with st.container():
-        with st.expander("💼 Datos del Proveedor", expanded=True):
-            with st.container():
-                nombre_proveedor = st.selectbox("🔍 Selecciona un proveedor", ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist())
+        nombre_proveedor = st.selectbox(
+            "🔍 Selecciona un proveedor",
+            ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist()
+        )
+    
+        # Valores por defecto
+        dni = ruc = servicio_base = direccion = celular = banco = cci = ""
+    
+        if nombre_proveedor != "Selecciona un proveedor":
+            proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
+            dni = str(proveedor_info["N° DNI"])
+            ruc = str(proveedor_info["N° RUC"])
+            servicio_base = proveedor_info["SERVICIO"]  # <- valor sugerido desde Excel
+            direccion = proveedor_info.get("DIRECCION", "")
+            celular = str(proveedor_info.get("CELULAR", ""))
+            banco = proveedor_info.get("BANCO", "")
+            cci = str(proveedor_info.get("CCI", "")).zfill(20)
+    
+        # DNI / RUC (solo lectura)
+        st.text_input("🔹 DNI", value=dni, disabled=True)
+        st.text_input("🏢 RUC", value=ruc, disabled=True)
+    
+        # 👇 Servicio editable (prefill con lo leído, pero el usuario puede cambiarlo)
+        servicio = st.text_area(
+            "🛠️ Servicio",
+            value=servicio_base,
+            placeholder="Describe el servicio a contratar...",
+            help="Puedes editar el texto libremente antes de generar el documento."
+        ).strip()
 
-                dni = ruc = servicio = direccion = celular = banco = cci = ""
-                if nombre_proveedor != "Selecciona un proveedor":
-                    proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-                    dni = str(proveedor_info["N° DNI"])
-                    ruc = str(proveedor_info["N° RUC"])
-                    servicio = proveedor_info["SERVICIO"]
-                    direccion = proveedor_info.get("DIRECCION", "")
-                    celular = str(proveedor_info.get("CELULAR", ""))
-                    banco = proveedor_info.get("BANCO", "")
-                    cci = str(proveedor_info.get("CCI", "")).zfill(20)
-
-                    st.text_input("🔹 DNI", value=dni, disabled=True)
-                    st.text_input("🏢 RUC", value=ruc, disabled=True)
-                    st.text_area("🛠️ Servicio", value=servicio, disabled=True)
 
     # Información adicional
     with st.container():
@@ -112,3 +125,4 @@ def mostrar():
 
             os.remove(nombre_archivo)
             st.success("✅ Documento generado correctamente.")
+
