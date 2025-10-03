@@ -26,7 +26,7 @@ def mostrar():
     }
 
     referencias_letras = {"1": "primer", "2": "segundo", "3": "tercer", "4": "cuarto"}
-    df = pd.read_excel("datos/proveedores.xlsx")
+    df = pd.read_excel("datos/proveedores1.xlsx")
 
     st.title("\U0001F4C4 Informe Único de Conformidad y Actividades")
 
@@ -143,6 +143,7 @@ def mostrar():
 
             os.remove(nombre_archivo)
             st.success("✅ Informe unificado generado correctamente.")
+
 
 
 
