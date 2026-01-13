@@ -5,6 +5,7 @@ from datetime import datetime
 import base64
 import os
 
+
 def mostrar():
     st.set_page_config(page_title="Requerimiento de Servicios", page_icon="📝", layout="centered")
     st.markdown("""
@@ -17,7 +18,7 @@ def mostrar():
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("\U0001F4C4 Requerimiento de Servicios")
+    st.title("📄 Requerimiento de Servicios")
 
     df = pd.read_excel("datos/proveedores1.xlsx")
 
@@ -28,32 +29,38 @@ def mostrar():
         "October": "octubre", "November": "noviembre", "December": "diciembre"
     }
 
-    # Datos del proveedor
-# Dentro del expander "💼 Datos del Proveedor"
+    # =========================
+    # DATOS DEL PROVEEDOR
+    # =========================
     with st.container():
         nombre_proveedor = st.selectbox(
             "🔍 Selecciona un proveedor",
             ["Selecciona un proveedor"] + df["NOMBRE Y APELLIDOS"].tolist()
         )
-    
+
         # Valores por defecto
         dni = ruc = servicio_base = direccion = celular = banco = cci = ""
-    
+
         if nombre_proveedor != "Selecciona un proveedor":
             proveedor_info = df[df["NOMBRE Y APELLIDOS"] == nombre_proveedor].iloc[0]
-            dni = str(proveedor_info["N° DNI"])
-            ruc = str(proveedor_info["N° RUC"])
-            servicio_base = proveedor_info["SERVICIO"]  # <- valor sugerido desde Excel
-            direccion = proveedor_info.get("DIRECCION", "")
-            celular = str(proveedor_info.get("CELULAR", ""))
-            banco = proveedor_info.get("BANCO", "")
-            cci = str(proveedor_info.get("CCI", "")).zfill(20)
-    
+
+            dni = str(proveedor_info.get("N° DNI", "")).strip()
+            ruc = str(proveedor_info.get("N° RUC", "")).strip()
+            servicio_base = str(proveedor_info.get("SERVICIO", "")).strip()
+            direccion = str(proveedor_info.get("DIRECCION", "")).strip()
+            celular = str(proveedor_info.get("CELULAR", "")).strip()
+            banco = str(proveedor_info.get("BANCO", "")).strip()
+
+            # ✅ CCI completo en un solo campo (normalizado)
+            cci_raw = proveedor_info.get("CCI", "")
+            cci = "".join(filter(str.isdigit, str(cci_raw)))  # solo números
+            cci = cci.zfill(20) if cci else ""               # rellena a 20 si aplica
+
         # DNI / RUC (solo lectura)
         st.text_input("🔹 DNI", value=dni, disabled=True)
         st.text_input("🏢 RUC", value=ruc, disabled=True)
-    
-        # 👇 Servicio editable (prefill con lo leído, pero el usuario puede cambiarlo)
+
+        # Servicio editable (prefill con lo leído)
         servicio = st.text_area(
             "🛠️ Servicio",
             value=servicio_base,
@@ -61,8 +68,9 @@ def mostrar():
             help="Puedes editar el texto libremente antes de generar el documento."
         ).strip()
 
-
-    # Información adicional
+    # =========================
+    # INFORMACIÓN ADICIONAL
+    # =========================
     with st.container():
         with st.expander("📍 Información adicional a completar", expanded=True):
             col1, col2 = st.columns(2)
@@ -73,11 +81,21 @@ def mostrar():
                 oferta = st.text_input("💰 Monto total ofertado (S/)", placeholder="Ej. 1500.00")
                 mes_manual = st.selectbox("📅 Mes del documento", list(meses.values()))
 
-    # Nombre del archivo
-    with st.container():
-        nombre_empleado = st.text_input("📄 Tu nombre para el archivo generado")
+            # ✅ NUEVO: correo digitado (no viene del Excel)
+            correo = st.text_input(
+                "📧 Correo (se digita manualmente)",
+                placeholder="Ej. proveedor@gmail.com"
+            ).strip()
 
-    # Botón de generación
+    # =========================
+    # NOMBRE DEL ARCHIVO
+    # =========================
+    with st.container():
+        nombre_empleado = st.text_input("📄 Tu nombre para el archivo generado").strip()
+
+    # =========================
+    # GENERAR DOCUMENTO
+    # =========================
     if st.button("📄 Generar Documento de Requerimiento"):
         campos = {
             "Proveedor": nombre_proveedor,
@@ -88,42 +106,50 @@ def mostrar():
             "Oferta": oferta,
             "Nº Servicio": n_servicio,
             "Mes": mes_manual,
+            "Correo": correo,
             "Nombre": nombre_empleado
         }
 
-        errores = [k for k, v in campos.items() if v.strip() == "" or v == "Selecciona un proveedor"]
+        errores = [
+            k for k, v in campos.items()
+            if str(v).strip() == "" or v == "Selecciona un proveedor"
+        ]
+
         if errores:
             st.error("❌ Corrige los siguientes campos: " + ", ".join(errores))
-        else:
-            context = {
-                "nombre_completo": nombre_proveedor,
-                "dni": dni,
-                "ruc": ruc,
-                "direccion": direccion,
-                "celular": celular,
-                "servicio": servicio,
-                "dias": dias,
-                "oferta": oferta,
-                "n_servicio": n_servicio,
-                "mes": mes_manual,
-                "banco": banco,
-                "cci": cci,
-                **{f'd{i+1}': digito for i, digito in enumerate(cci)}
-            }
+            return
 
-            plantilla = "plantilla/requerimientos_unificada.docx"
-            doc = DocxTemplate(plantilla)
-            doc.render(context)
+        # ✅ Contexto para DOCX ({{cci}} y {{correo}})
+        context = {
+            "nombre_completo": nombre_proveedor,
+            "dni": dni,
+            "ruc": ruc,
+            "direccion": direccion,
+            "celular": celular,
+            "servicio": servicio,
+            "dias": dias,
+            "oferta": oferta,
+            "n_servicio": n_servicio,
+            "mes": mes_manual,
+            "banco": banco,
+            "cci": cci,        # {{cci}}
+            "correo": correo,  # {{correo}}
+        }
 
-            nombre_archivo = f"{nombre_empleado.upper()}_REQUERIMIENTO_{n_servicio}.docx"
-            doc.save(nombre_archivo)
+        plantilla = "plantilla/requerimientos_unificada.docx"
+        doc = DocxTemplate(plantilla)
+        doc.render(context)
 
-            with open(nombre_archivo, "rb") as f:
-                b64 = base64.b64encode(f.read()).decode()
-                href = f'<a href="data:application/octet-stream;base64,{b64}" download="{nombre_archivo}">📥 Descargar Documento de Requerimiento</a>'
-                st.markdown(href, unsafe_allow_html=True)
+        nombre_archivo = f"{nombre_empleado.upper()}_REQUERIMIENTO_{n_servicio}.docx"
+        doc.save(nombre_archivo)
 
-            os.remove(nombre_archivo)
-            st.success("✅ Documento generado correctamente.")
+        with open(nombre_archivo, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+            href = (
+                f'<a href="data:application/octet-stream;base64,{b64}" '
+                f'download="{nombre_archivo}">📥 Descargar Documento de Requerimiento</a>'
+            )
+            st.markdown(href, unsafe_allow_html=True)
 
-
+        os.remove(nombre_archivo)
+        st.success("✅ Documento generado correctamente.")
